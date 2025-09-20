@@ -1,0 +1,12 @@
+<FilesMatch ".(inc|env|log|txt|json|xml|phar|lock|js)$">
+Order Allow,Deny
+Deny from all
+</FilesMatch>
+
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+
+#Interdiction de visualisation des repertoires du site:
+Options All -Indexes

@@ -1,0 +1,46 @@
+# PHP Configuration for File Uploads - Method 1: Direct PHP values
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    php_value max_execution_time 300
+    php_value memory_limit 256M
+</IfModule>
+
+# PHP Configuration - Method 2: Using php_flag (alternative)
+<IfModule mod_php.c>
+    php_flag file_uploads On
+    php_value max_file_uploads 20
+</IfModule>
+
+# Force PHP settings using environment variables
+<IfModule mod_env.c>
+    SetEnv PHP_UPLOAD_MAX_FILESIZE 10M
+    SetEnv PHP_POST_MAX_SIZE 12M
+</IfModule>
+
+# Laravel routing and security
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

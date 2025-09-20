@@ -1,0 +1,17 @@
+{
+    "apps": [{
+        "name": "ubora-assessments-backend",
+        "script": "artisan",
+        "args": ["serve", "--host=0.0.0.0", "--port=8037" ],
+        "instances": "1",
+        "wait_ready": true,
+        "autorestart": true,
+        "interpreter" : "php",
+        "watch": false,
+        "error_file": null,
+        "out_file": null,
+        "log_file": null,
+        "time": true  
+        
+    }]
+}

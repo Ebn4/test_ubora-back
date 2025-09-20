@@ -1,0 +1,105 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Documentation Ubora Assessments",
+        "description": "L5 Swagger OpenApi description",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/uploadCandidacies": {
+            "post": {
+                "tags": [
+                    "Enregistrement des candidatures"
+                ],
+                "summary": "Enregistrement en batch des données des formulaires",
+                "operationId": "uploadForms",
+                "requestBody": {
+                    "description": "Cette interface d'API permet l'enregistrement en batch des données issues des formulaires, collectées dans un fichier CSV.",
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "fichier": {
+                                        "description": "The file to upload",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/uploadCandidaciesDocs": {
+            "post": {
+                "tags": [
+                    "Enregistrement des candidatures"
+                ],
+                "summary": "Enregistrement des fichiers attachés aux formulaires",
+                "operationId": "uploadDocs",
+                "requestBody": {
+                    "description": "Cette interface d'API est conçue pour l'enregistrement des fichiers attachés aux formulaires.",
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "fichier": {
+                                        "description": "The fileS to upload",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "file"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Enregistrement des candidatures",
+            "description": "Enregistrement des candidatures"
+        }
+    ]
+}
