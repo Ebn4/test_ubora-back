@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthenticationController::class, 'logout']);
     Route::get("CandidaciesDispatchEvaluator", [DispatchController::class, 'CandidaciesDispatchByEvaluator']);
     Route::get('/getDoc', [CandidacyController::class, "getDoc"]);
+    Route::get('candidacies/selection-stats',[CandidacyController::class, 'getSelectionStats']);
     Route::apiResource('candidacies', CandidacyController::class)->only(['index', 'destroy', "show"]);
     Route::get('getYearsPeriod', [PeriodController::class, 'getYearsPeriod']);
 
