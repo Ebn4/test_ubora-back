@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PeriodStatusEnum;
+use App\Helpers\FileHelper;
 use App\Http\Requests\CandidateSelectionRequest;
 use App\Http\Resources\CandidacyResource;
 use App\Http\Resources\EvaluatorRessource;
@@ -144,25 +145,37 @@ class CandidacyController extends Controller
                             'adresse' => $row['adresse'],
                             'province' => $row['province'],
                             'nationalite' => $row['nationalite'],
-                            'cv' => is_array($row['cv']) ? implode(', ', $row['cv']) : $row['cv'],
-                            'releve_note_derniere_annee' => is_array($row['relev_denotesdeladernireannedecours']) ? implode(', ', $row['relev_denotesdeladernireannedecours']) : $row['relev_denotesdeladernireannedecours'],
+                            'cv' => is_array($row['cv'])
+                                ? implode(', ', array_map([FileHelper::class, 'normalizeFileName'], $row['cv']))
+                                : FileHelper::normalizeFileName($row['cv']),
+                            'releve_note_derniere_annee' => is_array($row['relev_denotesdeladernireannedecours'])
+                                ? implode(', ', array_map([FileHelper::class, 'normalizeFileName'], $row['relev_denotesdeladernireannedecours']))
+                                : FileHelper::normalizeFileName($row['relev_denotesdeladernireannedecours']),
                             'en_soumettant' => $row['en_soumettant'],
                             'section_option' => $row['sectionoption'],
                             'j_atteste' => $row['jatteste_quelesinfor'],
                             'degre_parente_agent_orange' => $row['si_ouiquelleestvotredegrderelation'],
                             'annee_diplome_detat' => $row['anne_dobtentiondudiplmedtat'],
-                            'diplome_detat' => is_array($row['diplme_detat']) ? implode(', ', $row['diplme_detat']) : $row['diplme_detat'],
-                            'autres_diplomes_atttestation' => is_array($row['autres_diplmesattestations']) ? implode(', ', $row['autres_diplmesattestations']) : $row['autres_diplmesattestations'],
+                            'diplome_detat' => is_array($row['diplme_detat'])
+                                ? implode(', ', array_map([FileHelper::class, 'normalizeFileName'], $row['diplme_detat']))
+                                : FileHelper::normalizeFileName($row['diplme_detat']),
+                            'autres_diplomes_atttestation' => is_array($row['autres_diplmesattestations'])
+                                ? implode(', ', array_map([FileHelper::class, 'normalizeFileName'], $row['autres_diplmesattestations']))
+                                : FileHelper::normalizeFileName($row['autres_diplmesattestations']),
                             'universite_institut_sup' => $row['nom_universitouinstitutsuprieur'],
                             'pourcentage_obtenu' => $row['pourcentage_obtenu'],
-                            'lettre_motivation' => is_array($row['lettre_demotivation']) ? implode(', ', $row['lettre_demotivation']) : $row['lettre_demotivation'],
+                            'lettre_motivation' => is_array($row['lettre_demotivation'])
+                                ? implode(', ', array_map([FileHelper::class, 'normalizeFileName'], $row['lettre_demotivation']))
+                                : FileHelper::normalizeFileName($row['lettre_demotivation']),
                             'adresse_universite' => $row['adresse_universit'],
                             'parente_agent_orange' => $row['etesvous_apparentunagentdeorangerdc'],
                             'institution_scolaire' => $row['institution_scolairefrquente'],
                             'faculte' => $row['facult'],
                             'montant_frais' => $row['montants_desfrais'],
                             'sexe' => $row['sexe'],
-                            'attestation_de_reussite_derniere_annee' => is_array($row['attestation_derussitedeladernireannedtude']) ? implode(', ', $row['attestation_derussitedeladernireannedtude']) : $row['attestation_derussitedeladernireannedtude'],
+                            'attestation_de_reussite_derniere_annee' => is_array($row['attestation_derussitedeladernireannedtude'])
+                                ? implode(', ', array_map([FileHelper::class, 'normalizeFileName'], $row['attestation_derussitedeladernireannedtude']))
+                                : FileHelper::normalizeFileName($row['attestation_derussitedeladernireannedtude']),
                             'user_last_login' => is_array($row['user_last_login']) ? implode(', ', $row['user_last_login']) : $row['user_last_login'],
                             'period_id' => $period->id,
                             'is_allowed' => $is_allowed,
@@ -587,8 +600,8 @@ class CandidacyController extends Controller
     {
         $perPage = 10;
 
-        if ($request->has('perPage')) {
-            $perPage = $request->input('perPage');
+        if ($request->has('per_page')) {
+            $perPage = $request->input('per_page');
         }
 
         if ($request->has('periodId')) {
@@ -690,14 +703,14 @@ class CandidacyController extends Controller
         // Check if we can handle the file size
         $contentLength = $request->header('Content-Length') ? (int)$request->header('Content-Length') : 0;
         $uploadMaxSize = $this->parseSize(ini_get('upload_max_filesize'));
-        
+
         if ($contentLength > $uploadMaxSize) {
             Log::error('ZIP file upload failed: File too large for current PHP settings', [
                 'content_length' => $contentLength,
                 'upload_max_filesize' => ini_get('upload_max_filesize'),
                 'post_max_size' => ini_get('post_max_size')
             ]);
-            
+
             return response()->json([
                 'errors' => [
                     'zip_file' => [
@@ -737,7 +750,7 @@ class CandidacyController extends Controller
             }
 
             $file = $request->file('zip_file');
-            
+
             // Log file details
             Log::info('ZIP file details', [
                 'original_name' => $file->getClientOriginalName(),
@@ -751,7 +764,7 @@ class CandidacyController extends Controller
             if (!$file->isValid()) {
                 $errorCode = $file->getError();
                 $errorMessage = $file->getErrorMessage();
-                
+
                 // Map PHP upload error codes to user-friendly messages
                 $errorMessages = [
                     UPLOAD_ERR_INI_SIZE => 'File size exceeds PHP upload limit',
@@ -762,9 +775,9 @@ class CandidacyController extends Controller
                     UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
                     UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload'
                 ];
-                
+
                 $userMessage = $errorMessages[$errorCode] ?? $errorMessage;
-                
+
                 Log::error('ZIP file upload failed: Invalid file', [
                     'error_code' => $errorCode,
                     'error_message' => $errorMessage,
@@ -775,7 +788,7 @@ class CandidacyController extends Controller
                         'mime_type' => $file->getMimeType()
                     ]
                 ]);
-                
+
                 throw new \Exception($userMessage);
             }
 
@@ -800,8 +813,28 @@ class CandidacyController extends Controller
 
             // Extract ZIP contents
             $extractPath = storage_path('app/public/documents');
-            $zip->extract($extractPath);
-            
+            $files = $zip->listFiles();
+            foreach ($files as $fileInZip) {
+                $normalizedFileName = FileHelper::normalizeFileName($fileInZip);
+                $targetPath = $extractPath . '/' . $normalizedFileName;
+
+                // Crée les dossiers si nécessaire
+                $dir = dirname($targetPath);
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+
+                // Extrait avec le nouveau nom
+                $zip->extract($extractPath, [$fileInZip]); // Extrait d'abord avec nom original
+
+                // Renomme le fichier extrait
+                $originalExtractedPath = $extractPath . '/' . $fileInZip;
+                if (file_exists($originalExtractedPath)) {
+                    rename($originalExtractedPath, $targetPath);
+                    Log::info("📁 Fichier renommé : $fileInZip → $normalizedFileName");
+                }
+            }
+
             Log::info('ZIP file extracted successfully', [
                 'extract_path' => $extractPath,
                 'stored_path' => $zipPath
@@ -816,7 +849,7 @@ class CandidacyController extends Controller
                 'request_data' => $request->all(),
                 'user_id' => auth()->id() ?? 'unauthenticated'
             ]);
-            
+
             throw new HttpResponseException(
                 response: response()->json(['errors' => $e->errors()], 422)
             );
@@ -884,5 +917,43 @@ class CandidacyController extends Controller
             return $size * pow(1024, stripos('bkmgt', $unit[0]));
         }
         return (int)$size;
+    }
+
+    public function getSelectionStats(Request $request)
+    {
+        $periodId = $request->input('periodId');
+        if (!$periodId || !is_numeric($periodId)) {
+            return response()->json([
+                'error' => 'Le paramètre periodId est requis et doit être un nombre.'
+            ], 400);
+        }
+
+        $periodId = (int) $periodId;
+
+        try {
+            // Vérifier que la période existe
+            $period = Period::findOrFail($periodId);
+
+            // Total des candidats en phase de sélection (avec entretien)
+            $total = Candidacy::where("period_id", $period->id)
+                ->whereHas('interview')
+                ->count();
+
+            // Total des candidats évalués (avec au moins un SelectionResult)
+            $evaluated = Candidacy::where("period_id", $period->id)
+                ->whereHas('interview.selectionResults') //
+                ->count();
+
+            return response()->json([
+                'total' => $total,
+                'evaluated' => $evaluated,
+                'pending' => $total - $evaluated,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erreur lors du calcul des statistiques: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
