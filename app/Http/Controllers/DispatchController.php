@@ -90,6 +90,7 @@ class DispatchController extends Controller
             ->where("type", EvaluatorTypeEnum::EVALUATOR_PRESELECTION->value)
             ->where("period_id", $periodId)
             ->firstOrFail();
+
         if (!$dataEvaluateur) {
             throw new HttpResponseException(
                 response: response()->json([
@@ -97,6 +98,7 @@ class DispatchController extends Controller
                 ])
             );
         }
+
         $evaluateurId = $dataEvaluateur?->id;
 
         $query = Candidacy::with(['dispatch' => function ($query) use ($evaluateurId) {
@@ -133,7 +135,38 @@ class DispatchController extends Controller
 
         $count = $query->count();
 
+        // SIMPLE: Si per_page = 0, retourner toutes les données
         $perPage = $request->input('per_page', 5);
+
+        if ($perPage == 0) {
+            // Récupérer toutes les données sans pagination
+            $candidacies = $query->get();
+
+            // Transformer les données
+            $transformedCandidacies = $candidacies->map(function ($item) use ($candidaciesPreselection, $count, $evaluateurId, $periodStatus) {
+                $statusCandidacy = DispatchPreselection::where('candidacy_id', $item->id)
+                    ->where('evaluator_id', $evaluateurId)
+                    ->has('preselections')
+                    ->exists();
+
+                $item->candidaciesPreselection = $candidaciesPreselection;
+                $item->statusCandidacy = $statusCandidacy;
+                $item->totalCandidats = $count;
+                $item->periodStatus = $periodStatus;
+
+                return $item;
+            });
+
+            return response()->json([
+                'data' => $transformedCandidacies,
+                'total' => $count,
+                'per_page' => 0, // Indiquer que tout est retourné
+                'current_page' => 1,
+                'last_page' => 1
+            ]);
+        }
+
+        // Pagination normale
         $paginated = $query->paginate($perPage);
 
         try {
@@ -160,7 +193,6 @@ class DispatchController extends Controller
             ], 500);
         }
     }
-
 
     public function sendDispatchNotification()
     {

@@ -64,7 +64,7 @@
                             "schema": {
                                 "properties": {
                                     "fichier": {
-                                        "description": "The fileS to upload",
+                                        "description": "The files to upload",
                                         "type": "array",
                                         "items": {
                                             "type": "file"
@@ -94,12 +94,72 @@
                     }
                 }
             }
+        },
+        "/api/upload-settings": {
+            "get": {
+                "tags": [
+                    "File Upload"
+                ],
+                "summary": "Get current PHP upload settings",
+                "operationId": "getUploadSettings",
+                "responses": {
+                    "200": {
+                        "description": "Current PHP upload settings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "upload_max_filesize": {
+                                            "type": "string"
+                                        },
+                                        "post_max_size": {
+                                            "type": "string"
+                                        },
+                                        "max_execution_time": {
+                                            "type": "string"
+                                        },
+                                        "memory_limit": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@example.com"
+                    }
+                },
+                "type": "object"
+            }
         }
     },
     "tags": [
         {
             "name": "Enregistrement des candidatures",
             "description": "Enregistrement des candidatures"
+        },
+        {
+            "name": "File Upload",
+            "description": "File Upload"
         }
     ]
 }

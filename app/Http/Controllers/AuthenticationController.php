@@ -43,4 +43,39 @@ class AuthenticationController extends Controller
             );
         }
     }
+
+    public function resendOtp(Request $request)
+    {
+        $request->validate([
+            'cuid' => 'required|string'
+        ]);
+
+        try {
+            // Vérifier si les données LDAP sont toujours en cache
+            $ldapUser = Cache::get("ldap_user_{$request->cuid}");
+
+            if (!$ldapUser) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Session expirée. Veuillez vous reconnecter.'
+                ], 401);
+            }
+
+            // Renvoyer l'OTP
+            $this->authenticationService->resendOtp($request->cuid);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Un nouveau code a été envoyé à votre numéro de téléphone.'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+
 }
