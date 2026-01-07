@@ -46,7 +46,7 @@ class PreselectionController extends Controller
                 'message' => 'La période n\'est pas en statut de présélection.'
             ], 400);
         }
-
+        
         try {
             $validated = $request->validate([
                 '*.period_criteria_id' => 'required|integer|exists:period_criteria,id',

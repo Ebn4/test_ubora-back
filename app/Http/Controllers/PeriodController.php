@@ -13,6 +13,7 @@ use App\Models\StatusHistorique;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Nette\Utils\Json;
 
 class PeriodController extends Controller
 {
@@ -166,5 +167,59 @@ class PeriodController extends Controller
         return response()->json([
             "hasEvaluators" => $evaluators
         ]);
+    }
+
+    public function canClosePreselection(int $periodId): JsonResponse
+    {
+        $evaluators = Evaluator::query()
+            ->where('period_id', $periodId)
+            ->where('type', 'PRESELECTION')
+            ->with('user')
+            ->get();
+
+        $pendingEvaluators = [];
+
+        foreach ($evaluators as $evaluator) {
+            $pendingCount = DispatchPreselection::query()
+                ->where('evaluator_id', $evaluator->id)
+                ->whereDoesntHave('preselections')
+                ->count();
+
+            if ($pendingCount > 0) {
+                $pendingEvaluators[] = [
+                    'evaluator_id' => $evaluator->id,
+                    'user_name' => $evaluator->user->name ?? 'Inconnu',
+                    'pending_count' => $pendingCount,
+                ];
+            }
+        }
+
+        $canClose = empty($pendingEvaluators);
+
+        return response()->json([
+            'canClose' => $canClose,
+            'message' => $canClose
+                ? 'Tous les évaluateurs ont complété leurs évaluations.'
+                : count($pendingEvaluators) . ' évaluateur(s) n’ont pas encore complété leurs évaluations.',
+            'pendingEvaluators' => $pendingEvaluators,
+        ]);
+    }
+
+    public function getSelectionMax(int $periodId){
+
+        $period = Period::find($periodId);
+        if(!$period){
+            return response()->json([
+                'error' => 'period not found'
+            ]);
+        }
+
+        $max = $period->criteria()
+            ->wherePivot('type','SELECTION')
+            ->sum('period_criteria.ponderation');
+
+
+        return $max;
+
     }
 }

@@ -11,4 +11,19 @@ class SelectionResult extends Model
 
     protected $table = 'selection_result';
 
+    public function criteria()
+    {
+        return $this->belongsTo(Criteria::class, 'criteria_id');
+    }
+
+    public function interview()
+    {
+        return $this->belongsTo(Interview::class, 'interview_id');
+    }
+
+    public function evaluator()
+    {
+        return $this->belongsTo(Evaluator::class, 'evaluator_id');
+    }
+
 }

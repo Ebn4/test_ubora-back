@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="{{ l5_swagger_asset($documentation, 'swagger-ui.css') }}">
     <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-32x32.png') }}" sizes="32x32"/>
     <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-16x16.png') }}" sizes="16x16"/>
-    <style  nonce="{{ csp_nonce() }}">
+    <style>
     html
     {
         box-sizing: border-box;
@@ -32,7 +32,7 @@
 
 <script src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>
 <script src="{{ l5_swagger_asset($documentation, 'swagger-ui-standalone-preset.js') }}"></script>
-<script  nonce="{{ csp_nonce() }}">
+<script>
     window.onload = function() {
         // Build a system
         const ui = SwaggerUIBundle({

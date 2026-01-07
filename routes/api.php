@@ -23,15 +23,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('has-admin-role', HasAdminRoleController::class);
 
     Route::post('candidate/selections', [CandidacyController::class, 'candidateSelections']);
+    Route::get('/period/{periodId}/selection/ponderation', [PeriodController::class, 'getSelectionMax']);
     Route::get('rejeted_candidacies', [CandidacyController::class, 'rejetedCandidacies']);
     Route::get("evaluators/{id}/candidacies", [EvaluatorController::class, 'getEvaluatorCandidacies']);
     Route::apiResource('preselection', PreselectionController::class)->except(['index', 'show']);
 
     Route::get('getPreselectionsForDispatch/{dispatchId}', [PreselectionController::class, 'getPreselectionsForDispatch']);
     Route::get('/period/join/criteria', [CriteriaController::class, 'getCriteriaWithPeriodData']);
+    Route::get('preselected-candidacies', [CandidacyController::class, 'getPreselectedCandidacies']);
     Route::post('logout', [AuthenticationController::class, 'logout']);
     Route::get("CandidaciesDispatchEvaluator", [DispatchController::class, 'CandidaciesDispatchByEvaluator']);
     Route::get('/getDoc', [CandidacyController::class, "getDoc"]);
+    Route::get('candidacies/selection-stats',[CandidacyController::class, 'getSelectionStats']);
     Route::apiResource('candidacies', CandidacyController::class)->only(['index', 'destroy', "show"]);
     Route::get('getYearsPeriod', [PeriodController::class, 'getYearsPeriod']);
 
@@ -46,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('evaluators/is-selector-evaluator', [EvaluatorController::class, 'isSelectorEvaluator']);
     Route::get('evaluators/is-preselector-evaluator', [EvaluatorController::class, 'isPreselectorEvaluator']);
+    Route::get('/candidates/{candidateId}/periods/{periodId}/evaluation-results',
+    [CandidacyController::class, 'getCandidateEvaluationResultsByPeriod']);
 
     Route::middleware("admin")->group(function () {
 

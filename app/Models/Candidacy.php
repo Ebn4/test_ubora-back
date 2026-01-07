@@ -26,6 +26,7 @@ class Candidacy extends Model
         'etn_email',
         'etn_prenom',
         'etn_postnom',
+        'etn_naissance',
         'ville',
         'telephone',
         'adresse',
@@ -56,6 +57,7 @@ class Candidacy extends Model
         'evaluateur3',
         'period_id',
         'is_allowed',
+        'promotion_academique'
     ];
 
     protected $attribute = ['moyenne', 'evaluations_effectuées'];
